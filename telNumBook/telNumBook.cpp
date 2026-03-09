@@ -1,5 +1,6 @@
  // 전화번호부 프로젝트
 #include <iostream>
+#include <vector> // vector를 사용하기 위한 헤더 
 using namespace std;
 
 // 복잡한 기능 없이 데이터만 깔끔하게 묶어놓은 바구니.
@@ -11,17 +12,18 @@ struct User
 	// struct에서 생성한 변수는 기본적으로 public(공용)으로 생성된다.
 	// 하지만 struct도 private:으로 외부 접근을 막아서 은닉화 시킬 수 있다.
 
-// private: 
-// --> 주석한 이유 : struct를 모두가 접근 가능한 public 형태로 우선 생성한다.
-// class를 User(struct로 생성한 데이터 모음 바구니)들을 관리하는 시스템으로 만든다.
-// 	   private : User 객체들을 담아두는 배열이나, 벡터.(데이터가 꼬이지 않게 숨김.)
-// 	   public: addContact(), searchContact() 같은 함수들.(사용자가 쓰는 버튼 역할)
+	// private: 
+	// --> 주석한 이유 : struct를 모두가 접근 가능한 public 형태로 우선 생성한다.
+	// class를 User(struct로 생성한 데이터 모음 바구니)들을 관리하는 시스템으로 만든다.
+	// 	   private : User 객체들을 담아두는 배열이나, 벡터.(데이터가 꼬이지 않게 숨김.)
+	// 	   public: addContact(), searchContact() 같은 함수들.(사용자가 쓰는 버튼 역할)
  
 	// string -> C++ 표준 라이브러리에서 제공하는 클래스임.
 	// 크기 : 글자 수에 맞춰 자동 조절
 	// 비교 : == 연산자 사용 가능
 	// 복사/대입 : = 연산자 사용 가능
 	// 유연성 : 제한 없이 늘어남
+
 	string name; // 이름
 	string tel; // 전화번호
 };
@@ -30,28 +32,62 @@ class TelNumBook
 {
 public:
 	// 사용자의 정보를 입력하는 함수입니다.
-	void addContact() {
-		cout << "NAME : ";
-		cin >> list[0].name;
-		cout << "TEL : ";
-		cin >> list[0].tel;
-		cout << "데이터가 성공적으로 등록 되었습니다." << endl;
+	void addContact(User newUser) { // User 타입의 데이터를 newUser라는 이름으로 부름.
+		// list[count] = newUser; // list[0](count의 초깃값이 0임) = newUser에 있는 데이터를 통째로 복사해서 넣는다. 
+		// --> ★vector 사용으로 인해 주석처리한 코드★
+
+		list.push_back(newUser); // 빈 자리가 있다면 가장 끝에 데이터를 복사해서 넣음.
+
+		// push_back 이 하는 기능
+		// 공간 확인 : " 지금 공간에 새로운 데이터를 넣을 빈 자리가 있는가? "
+		// (★★★★★)데이터 안착 : "빈 자리가 있다면 가장 끝에 데이터를 복사해서 넣는다."
+		// 내부 카운트 업데이트 : "데이터가 하나 늘었으니 내 크기(size)를 1 늘려야지. (기존 count++ 의 역할을 대신함)
+		// 나중에 몇 명이 저장되어 있는지 궁금할때는
+		// list.size() 함수를 호출한다. -> 현재 저장중인 데이터 수를 출력할 수 있음.
+		
+		// count++; // count를 1증가 시킴 --> ★vector 사용으로 인해 주석처리한 코드★
+		// count를 1 증가 시키게 되면 다음 등록때는 list[1], 그 다음은 list[2] 이런식으로 데이터를 순차적으로 배열 안에 자동으로 복사해서 넣게 된다.
+
+		cout << list.size() << endl; // size() 함수로 현재 저장된 데이터의 숫자를 출력함.
+
+		// cout << count << endl; // count 증가 확인용 코드 --> ★vector 사용으로 인해 주석처리한 코드★
+	}
+
+	void allUserList() {
+
+		// 만약 데이터가 존재하지 않을 경우 경고문 출력.
+		if (list.size() == 0) {
+			cout << "데이터가 존재하지 않습니다." << endl;
+		}
+
+		for (int i = 0; i < list.size(); i++) {
+			cout << "| 이름 | " << list[i].name << " | 전화번호 | " << list[i].tel << endl;
+		}
+		// 해당 코드를 풀이하면 다음과 같음.
+		// i = 0; i < list.size() -> 0부터 list.size()까지(데이터가 존재하는 만큼);
+		// 출력한다. list[i] list의 i번째 배열에 담긴 name과 tel을 
+		// Ex) list[0].name, list[0].tel -> 도르니, 010-1234-1234가 담겨져 있음.
+
 	}
 
 private:
-	User list[100]; // User는 struct로 만든 데이터 바구니이다. 이를 list라는 이름으로 배열 형태의 [100] 크기, 0~99까지로 생성한다.
-};
+	//User list[100]; // User는 struct로 만든 데이터 바구니이다. 이를 list라는 이름으로 배열 형태의 [100] 크기, 0~99까지로 생성한다. --> ★vector 사용으로 인해 주석처리한 코드★
 
-// 전체 리스트
-void allUserList(TelNumBook* list, int memberCount) {
-	
-}
+	vector<User> list; // vector를 사용하여 정해진 배열의 크기가 아닌 동적으로 배열을 관리하게 설계함.
+
+	// 기존 배열 방식에서는 배열(list)이 그냥 공간일 뿐이라서, 현재 어디까지 찼는지 알려주는 손가락(count)이 필요했음. 하지만 vector는 공간 + 관리자 가 합쳐진 클래스임.
+	// - 배열 방식(기존 하려했던 방식) : 0번째 칸에 넣고, 이제 1번이라고 표시해둬(수동)
+	// -vector방식 : push_back해 -> vector 내부에서 "지금 0번까지 찼네? 그럼 1번에 넣고 내가 기억해둬야지."(자동)
+
+	// int count = 0; // 현재 저장된 인원수 체크용 --> ★vector 사용으로 인해 주석처리한 코드★
+};
 
 int main()
 {
 	TelNumBook list; // TelNumBook 클래스 인스턴스 생성
+	User user_struct; // User 스트럭트 인스턴스 생성
 	int menuChoice; // 사용자가 입력한 메뉴의 번호를 저장하는 인스턴스.
-	int memberCount; // 회원수(데이터의 갯수를 알기 위해 등록된 회원의 수를 체크한다.)
+	// int memberCount; // 회원수(데이터의 갯수를 알기 위해 등록된 회원의 수를 체크한다.)
 
 	while (true) {
 		// 메인 메뉴
@@ -65,11 +101,24 @@ int main()
 		
 
 		if (menuChoice == 1) {
-			
+			cout << "NAME : "; // 사용자가 이름을 입력함.
+			cin >> user_struct.name; // struct로 생성한 User에 존재하는 name 변수로 데이터를 저장함.
+			cout << "TEL : "; // 사용자가 전화번호를 입력함.
+			cin >> user_struct.tel; // struct로 생성한 User에 존재하는 tel 변수로 데이터를 저장함.
+
+			// 데이터가 잘 저장되는지 확인하기 위한 코드
+			cout << user_struct.name << endl; // User에 저장된 데이터를 바로 출력함.
+			cout << user_struct.tel << endl; // User에 저장된 데이터를 바로 출력함.
+
+			list.addContact(user_struct); // TelNumBook 클래스에 addContact 함수로 user_struct(User 스트럭트에 저장된 정보)를 건네준다.
+		}
+
+		if (menuChoice == 3) {
+			list.allUserList();
 		}
 
 		// [4] 프로그램 종료
-		if (menuChoice == 4) break;
+		if (menuChoice == 4) break; // 반복문을 정지하여 프로그램을 종료시킴.
 	}
 	
 
@@ -104,5 +153,3 @@ int main()
 // 이 count로 list[0].name, list[1].name처럼 숫자를 직접 적을 필요가 없어짐. 항상 list[count] 라고 적으면 데이터가 들어올 때마다 count가 올라가면서 자동으로 다음 빈칸을 찾아가게 된다.
 
 */
-
-// 커밋 확인용 주석입니다.
