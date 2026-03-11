@@ -51,8 +51,10 @@ public:
 		cout << list.size() << endl; // size() 함수로 현재 저장된 데이터의 숫자를 출력함.
 
 		// cout << count << endl; // count 증가 확인용 코드 --> ★vector 사용으로 인해 주석처리한 코드★
-	}
 
+	} // addContact() 의 끝
+
+	// 전체 출력 함수
 	void allUserList() {
 
 		// 만약 데이터가 존재하지 않을 경우 경고문 출력.
@@ -68,7 +70,35 @@ public:
 		// 출력한다. list[i] list의 i번째 배열에 담긴 name과 tel을 
 		// Ex) list[0].name, list[0].tel -> 도르니, 010-1234-1234가 담겨져 있음.
 
-	}
+	} // allUserList() 의 끝 
+
+	// 검색 함수
+	void userSearch(string targetName) { // main 함수에서 받을 매개변수 세팅
+
+		bool isFound = false; // 시작은 아직 찾지 못한 상태이니 거짓으로 셋팅한다.
+
+		// 검색어를 main()에서 받고 함수에 전달한다.
+		// string 타입의 targetName의 인자에 값을 담고 해당 함수에서 사용한다.
+		
+		// 반복문을 사용하여 list.size() -> 전체 데이터 갯수만큼 돌린다
+		
+
+		for (int i = 0; i < list.size(); i++) { // list.size()는 현재 저장되어 있는 데이터만큼 돌게 해주는 안전장치 같은 존재
+
+			if (list[i].name == targetName) {
+				// list[i] -> 배열의 0번째부터 전체 데이터(갯수 만큼) 중 검색어와 일치하는 데이터가 있다면 아래의 출력문으로 출력한다.
+				cout << "| 이름 | " << list[i].name << " | 전화번호 | " << list[i].tel << endl;
+				isFound = true; // 데이터를 출력한 이후 ifFound의 상태를 true로 바꾸며 break로 반복문을 빠져나간다.
+				break;
+			}
+			
+		}
+
+		// isFound가 false라면 일치하는 데이터가 존재하지 않았으므로 경고문을 출력한다.
+		if (isFound == false) {
+			cout << "일치하는 데이터를 찾을 수 없습니다." << endl;
+		}
+	} // search() 의 끝
 
 private:
 	//User list[100]; // User는 struct로 만든 데이터 바구니이다. 이를 list라는 이름으로 배열 형태의 [100] 크기, 0~99까지로 생성한다. --> ★vector 사용으로 인해 주석처리한 코드★
@@ -111,6 +141,15 @@ int main()
 			cout << user_struct.tel << endl; // User에 저장된 데이터를 바로 출력함.
 
 			list.addContact(user_struct); // TelNumBook 클래스에 addContact 함수로 user_struct(User 스트럭트에 저장된 정보)를 건네준다.
+		}
+
+		if (menuChoice == 2) {
+			string nameToSearch; // 검색할 이름을 담을 변수
+			cout << "Search(Name, Tel) : ";
+			cin >> nameToSearch; 
+			cout << endl;
+
+			list.userSearch(nameToSearch);
 		}
 
 		if (menuChoice == 3) {
