@@ -3,5 +3,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="telNumBook/telNumBook.vcxproj" />
+  <Project Path="telNumBook/telNumBook.vcxproj" Id="0408c439-b1a9-46d1-91c0-8d4fba6225a5" />
 </Solution>

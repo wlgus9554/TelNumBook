@@ -31,14 +31,13 @@ struct User
 class TelNumBook
 {
 public:
-	// 사용자의 정보를 입력하는 함수입니다.
+	// [3-1 등록 함수(사용자의 정보를 입력하는 함수)]
 	void addContact(User newUser) { // User 타입의 데이터를 newUser라는 이름으로 부름.
 		// list[count] = newUser; // list[0](count의 초깃값이 0임) = newUser에 있는 데이터를 통째로 복사해서 넣는다. 
 		// --> ★vector 사용으로 인해 주석처리한 코드★
 
 		list.push_back(newUser); // 빈 자리가 있다면 가장 끝에 데이터를 복사해서 넣음.
-
-		// push_back 이 하는 기능
+		//   ㄴpush_back 이 하는 기능
 		// 공간 확인 : " 지금 공간에 새로운 데이터를 넣을 빈 자리가 있는가? "
 		// (★★★★★)데이터 안착 : "빈 자리가 있다면 가장 끝에 데이터를 복사해서 넣는다."
 		// 내부 카운트 업데이트 : "데이터가 하나 늘었으니 내 크기(size)를 1 늘려야지. (기존 count++ 의 역할을 대신함)
@@ -48,13 +47,14 @@ public:
 		// count++; // count를 1증가 시킴 --> ★vector 사용으로 인해 주석처리한 코드★
 		// count를 1 증가 시키게 되면 다음 등록때는 list[1], 그 다음은 list[2] 이런식으로 데이터를 순차적으로 배열 안에 자동으로 복사해서 넣게 된다.
 
+		// [데이터 등록이 성공적으로 됐는지 확인하기 위한 출력 코드]
 		cout << list.size() << endl; // size() 함수로 현재 저장된 데이터의 숫자를 출력함.
 
 		// cout << count << endl; // count 증가 확인용 코드 --> ★vector 사용으로 인해 주석처리한 코드★
 
 	} // addContact() 의 끝
 
-	// 전체 출력 함수
+	// [4-1] 전체 출력 함수
 	void allUserList() {
 
 		// 만약 데이터가 존재하지 않을 경우 경고문 출력.
@@ -72,32 +72,92 @@ public:
 
 	} // allUserList() 의 끝 
 
-	// 검색 함수
-	void userSearch(string targetName) { // main 함수에서 받을 매개변수 세팅
+	// [5-1] 검색 함수
+	void userSearch(string searchData) { // main 함수에서 받을 매개변수 세팅
 
 		bool isFound = false; // 시작은 아직 찾지 못한 상태이니 거짓으로 셋팅한다.
+
+		vector<int> foundIndices; // 동명인을 찾았을 때, 그 사람이 list의 몇 번째(숫자)에 있었는지 번호만 따로 적어두는 메모지임.
+		// Ex) 만약 도르니가 3번과 7번에 있다면 foundIndices는 아래와 같다
+		// 3번째 : foundIndices.push_back(3); 실행 -> 결과 [3]
+		// 7번째 : foundIndices.push_back(7); 실행 -> 결과 [3, 7]
 
 		// 검색어를 main()에서 받고 함수에 전달한다.
 		// string 타입의 targetName의 인자에 값을 담고 해당 함수에서 사용한다.
 		
 		// 반복문을 사용하여 list.size() -> 전체 데이터 갯수만큼 돌린다
 		
+		// ----------------------------------------------------------------------------------------
 
 		for (int i = 0; i < list.size(); i++) { // list.size()는 현재 저장되어 있는 데이터만큼 돌게 해주는 안전장치 같은 존재
 
-			if (list[i].name == targetName) {
+			if (list[i].name == searchData || list[i].tel == searchData) {
+				foundIndices.push_back(i); // i가 foundIndices 바구니의 첫번째 칸에 들어간다.
+
 				// list[i] -> 배열의 0번째부터 전체 데이터(갯수 만큼) 중 검색어와 일치하는 데이터가 있다면 아래의 출력문으로 출력한다.
-				cout << "| 이름 | " << list[i].name << " | 전화번호 | " << list[i].tel << endl;
+
+				cout << "[" << foundIndices.size() << "]" << "| 이름 | " << list[i].name << " | 전화번호 | " << list[i].tel << endl;
+				// 같은 데이터 3개일 경우 size()를 사용하게 되면 
+				// [1] 도르니 -> 반복!(같은 이름 존재) -> [2] 도르니 -> 반복!(같은 이름 존재) -> [3] 도르니 -> 반복! 
 				isFound = true; // 데이터를 출력한 이후 ifFound의 상태를 true로 바꾸며 break로 반복문을 빠져나간다.
-				break;
+
+			} // if문의 끝
+
+		}// for문의 끝
+		cout << endl; // 줄내림
+
+		while (isFound == true) {
+			int subChoice; // 검색 안에서 메뉴를 입력한 것을 저장할 변수
+
+			cout << "[1] 수정  [2] 삭제  [3] 이전으로" << endl;
+			cout << "입력 : ";
+			cin >> subChoice;
+
+			// [수정]
+			if (subChoice == 1) {
+				int indicesNum; // 인덱스 번호
+
+				cout << "수정할 번호를 입력해주세요" << endl;
+				cout << "NUMBER : ";
+				cin >> indicesNum; // 사용자가 수정하고 싶은 데이터를 입력함
+
+				int realIndex = indicesNum - 1; // -1을 하는 이유는 인덱스는 0부터 시작하기 때문에 사용자가 1번으로 보이는 데이터의 실제 주소는 0이다.
+
+				if (indicesNum >= 1 && indicesNum <= foundIndices.size()) {
+					int targetAddress = foundIndices[realIndex]; // 실제 주소를 담을 변수 
+					cout << "선택한 번호의 이름 : " << list[targetAddress].name << endl;
+					cout << "선택한 번호의 전화번호 : " << list[targetAddress].tel << endl;
+
+					cout << "변경할 이름 : ";
+					cin >> list[targetAddress].name;
+					cout << "변경할 전화번호 : ";
+					cin >> list[targetAddress].tel;
+
+					cout << "변경된 이름 : " << list[targetAddress].name << " | 변경된 전화번호 : " << list[targetAddress].tel << endl;
+				}
+				
 			}
+
+			// [삭제]
+			if (subChoice == 2) {
+
+			}
+
+			// [이전으로]
+			if (subChoice == 3) break;
 			
 		}
+
+		// ----------------------------------------------------------------------------------------
+		
 
 		// isFound가 false라면 일치하는 데이터가 존재하지 않았으므로 경고문을 출력한다.
 		if (isFound == false) {
 			cout << "일치하는 데이터를 찾을 수 없습니다." << endl;
-		}
+		} // if(isFound -> 데이터가 존재하지 않을 경우의 조건문) 끝
+
+		
+
 	} // search() 의 끝
 
 private:
@@ -120,7 +180,7 @@ int main()
 	// int memberCount; // 회원수(데이터의 갯수를 알기 위해 등록된 회원의 수를 체크한다.)
 
 	while (true) {
-		// 메인 메뉴
+		// [1] 메인 화면
 		cout << "환영합니다. 이곳은 회원의 전화번호부를 관리하는 프로그램입니다." << endl;
 		cout << "메뉴를 확인 후 입력칸에 입력해주세요!" << endl;
 		cout << "  [1] 등록  [2] 조회  [3] 전체조회  [4] 프로그램 종료" << endl;
@@ -129,7 +189,7 @@ int main()
 		cout << endl;
 		cout << "[ ------------------------------------------------------ ]" << endl;
 		
-
+		// [3] 데이터 등록
 		if (menuChoice == 1) {
 			cout << "NAME : "; // 사용자가 이름을 입력함.
 			cin >> user_struct.name; // struct로 생성한 User에 존재하는 name 변수로 데이터를 저장함.
@@ -143,20 +203,22 @@ int main()
 			list.addContact(user_struct); // TelNumBook 클래스에 addContact 함수로 user_struct(User 스트럭트에 저장된 정보)를 건네준다.
 		}
 
+		// [5] 데이터 검색
 		if (menuChoice == 2) {
-			string nameToSearch; // 검색할 이름을 담을 변수
-			cout << "Search(Name, Tel) : ";
-			cin >> nameToSearch; 
-			cout << endl;
+			string searchData; // 검색할 이름 또는 전화번호를 담을 변수
+			cout << "Search(Name or Tel) : ";
+			cin >> searchData; // searchData 변수에 값을 저장
+			cout << endl; // 줄바꿈
 
-			list.userSearch(nameToSearch);
+			list.userSearch(searchData); //userSearch 함수에 검색어를 건내줌.
 		}
 
+		// [4] 전체 데이터 출력
 		if (menuChoice == 3) {
 			list.allUserList();
 		}
 
-		// [4] 프로그램 종료
+		// [2] 프로그램 종료
 		if (menuChoice == 4) break; // 반복문을 정지하여 프로그램을 종료시킴.
 	}
 	
