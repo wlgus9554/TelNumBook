@@ -78,6 +78,7 @@ public:
 		bool isFound = false; // 시작은 아직 찾지 못한 상태이니 거짓으로 셋팅한다.
 
 		vector<int> foundIndices; // 동명인을 찾았을 때, 그 사람이 list의 몇 번째(숫자)에 있었는지 번호만 따로 적어두는 메모지임.
+		
 		// Ex) 만약 도르니가 3번과 7번에 있다면 foundIndices는 아래와 같다
 		// 3번째 : foundIndices.push_back(3); 실행 -> 결과 [3]
 		// 7번째 : foundIndices.push_back(7); 실행 -> 결과 [3, 7]
@@ -92,14 +93,16 @@ public:
 		for (int i = 0; i < list.size(); i++) { // list.size()는 현재 저장되어 있는 데이터만큼 돌게 해주는 안전장치 같은 존재
 
 			if (list[i].name == searchData || list[i].tel == searchData) {
-				foundIndices.push_back(i); // i가 foundIndices 바구니의 첫번째 칸에 들어간다.
+				foundIndices.push_back(i); // i가 foundIndices 바구니의 첫번째 칸에 들어간다. i는 방 번호 같은 개념임. 나중에 수정과 삭제를 위한 주소를 부여하는 주소값임.
+				// 쉽게 말해 foundIndices 변수는 실제 데이터가 존재하는 인덱스 번호가 들어있음.
 
 				// list[i] -> 배열의 0번째부터 전체 데이터(갯수 만큼) 중 검색어와 일치하는 데이터가 있다면 아래의 출력문으로 출력한다.
 
 				cout << "[" << foundIndices.size() << "]" << "| 이름 | " << list[i].name << " | 전화번호 | " << list[i].tel << endl;
+				// foundIndices.size()는 foundIndices 변수 안에 데이터 갯수를 의미함.
 				// 같은 데이터 3개일 경우 size()를 사용하게 되면 
 				// [1] 도르니 -> 반복!(같은 이름 존재) -> [2] 도르니 -> 반복!(같은 이름 존재) -> [3] 도르니 -> 반복! 
-				isFound = true; // 데이터를 출력한 이후 ifFound의 상태를 true로 바꾸며 break로 반복문을 빠져나간다.
+				isFound = true; // 데이터를 출력한 이후 ifFound의 상태를 true로 바꿈.
 
 			} // if문의 끝
 
@@ -115,16 +118,17 @@ public:
 
 			// [수정]
 			if (subChoice == 1) {
-				int indicesNum; // 인덱스 번호
+				int indexNum; // 인덱스 번호
 
 				cout << "수정할 번호를 입력해주세요" << endl;
 				cout << "NUMBER : ";
-				cin >> indicesNum; // 사용자가 수정하고 싶은 데이터를 입력함
+				cin >> indexNum; // 사용자가 수정하고 싶은 데이터를 입력함
 
-				int realIndex = indicesNum - 1; // -1을 하는 이유는 인덱스는 0부터 시작하기 때문에 사용자가 1번으로 보이는 데이터의 실제 주소는 0이다.
+				int realIndex = indexNum - 1; // -1을 하는 이유는 인덱스는 0부터 시작하기 때문에 사용자가 1번으로 보이는 데이터의 실제 주소는 0이다.
 
-				if (indicesNum >= 1 && indicesNum <= foundIndices.size()) {
+				if (indexNum >= 1 && indexNum <= foundIndices.size()) {
 					int targetAddress = foundIndices[realIndex]; // 실제 주소를 담을 변수 
+					// foundIndices배열 안에 realIndex번째를 targetAddress로 선언한다. (즉, foundIndices의 n번째 칸을 열어서 그 안에 적힌 실제 주소를 읽어온다.)
 					cout << "선택한 번호의 이름 : " << list[targetAddress].name << endl;
 					cout << "선택한 번호의 전화번호 : " << list[targetAddress].tel << endl;
 
@@ -134,13 +138,34 @@ public:
 					cin >> list[targetAddress].tel;
 
 					cout << "변경된 이름 : " << list[targetAddress].name << " | 변경된 전화번호 : " << list[targetAddress].tel << endl;
-				}
+					break;
+				} // if문의 끝
 				
-			}
+			} // if문의 끝
 
 			// [삭제]
 			if (subChoice == 2) {
+				int indexNum; // 인덱스 번호
+				cout << "삭제할 번호를 입력해주세요" << endl;
+				cout << "NUMBER : ";
+				cin >> indexNum;
 
+				int realIndex = indexNum - 1; // 실제 인덱스 주소
+
+				if (indexNum >= 1 && indexNum <= foundIndices.size()) {
+					int targetAddress = foundIndices[realIndex]; // 실제 주소를 담을 변수
+					// ------------------------------ 여기까진 수정과 같은 개념임. 사용자 보이는 번호(1부터)를 임시 변수에 담고 실제 주소로 찾아가기 위해 
+					// 새로운 변수를 선언하여 - 1 해줌.(인덱스는 0부터 시작하기 때문)
+					// 1부터 존재하는 데이터 만큼 사이에서 선택해야 하기 때문에 조건문을 설정함.
+					list.erase(list.begin() + targetAddress); // begin부터 targetAddress만큼 떨어진 칸을 삭제해라.
+					// begin() : 맨 앞칸을 가리키는 포인터/반복자
+					// begin()을 사용하여 맨 첫 번째 칸은 여기다! 라고 찍어주는 기준점 같은 개념임.
+					// erase() 함수는 벡터라는 도화지에서 특정 부분을 지워버리는 함수임.
+					// erase()를 쓸 때는 "시작점 + 진짜 주소" 조합을 사용해야 함.
+					
+					break;
+				}
+				
 			}
 
 			// [이전으로]
@@ -325,4 +350,38 @@ int main()
 	- Assertion Failed 에러가 발생했었음 (서로 다른 바구니의 인덱스를 섞어서 사용했기 때문임.)
 	- 검색 부분에서 break 위치가 잘못되어 원하지 않는 부분에서 루프를 탈출함.
 	
+*/
+
+/*
+	2026/03/15
+	삭제 모듈을 구현함
+	해당 삭제 모듈은 수정과 큰 차이가 없었음
+	먼저 인덱스의 주소를 찾아야함.
+	수정에서도 마찬가지로 "몇 번 자리에 데이터를 수정할 것인가?"가 중요한 부분이였기에 삭제도 마찬가지로 "몇 번 자리에 데이터를 삭제할래?"가 중요시 되야함.
+	따라서 수정과 같은 코드로 검색에서 출력된 데이터에서 [1] [2]와 같은 번호들은 foundIndices 동적 배열 변수에 저장된 데이터 갯수를 의미함.
+	사용자에게 선택하기 편하게 보여주기 위해서 이러한 방법을 선택하였음.
+	오늘은 vector에 기능인 erase() 함수를 사용해봤음.
+	erase() 함수란 인덱스의 주소에 들어있던 데이터를 지우고 남은 데이터들의 주소를 다시 정렬함(앞으로 당겨지게 됨.)
+
+	begin() : 맨 앞칸을 가리키는 포인터/반복자
+	begin()을 사용하여 맨 첫 번째 칸은 여기다! 라고 찍어주는 기준점 같은 개념임.
+	erase() 함수는 벡터라는 도화지에서 특정 부분을 지워버리는 함수임.
+	erase()를 쓸 때는 "시작점 + 진짜 주소" 조합을 사용해야 함.
+
+	좋았던 점
+	- vector의 새로운 함수 erase()를 공부하게 되었으며, 배열을 보다 편하게 관리하는 방법을 공부하게 됨.
+	- 수정과 비슷한 코드였기 때문에 수정을 이미 구현한 이후라서 어렵지 않았음.
+
+	아쉬웠던 점
+	- 예외처리가 되어있지 않아서 어떠한 입력도 받아낼 수 있음
+	- break를 수정과 삭제 이후 걸지 않아서 가끔 반복문이 무한으로 루프되는 경우도 발생하였었음.(수정 완료)
+	- 라이브러리 함수의 사용법을 공식 문서나 가이드를 통해 확인하는 습관이 중요함.
+
+
+	기본적인 모듈 구현 완료
+	**** 앞으로 구현해볼 기능 ****
+	* 입력에 대한 예외처리
+	* 가나다 순으로 데이터 정렬
+	* 새로운 데이터 변수들을 추가 이후 프로그램의 전체적인 품질 상향
+	* 파일 저장 및 저장된 파일을 불러오기 하여 기존에 있던 데이터들을 프로그램 실행 시킬때 불러오기.
 */
