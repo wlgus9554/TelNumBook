@@ -5,7 +5,7 @@ using namespace std;
 
 // 복잡한 기능 없이 데이터만 깔끔하게 묶어놓은 바구니.
 // 개발자들 사이에선 
-// struct를 쓸 때 : 이건 복잡한 기능 없이 데이터만 깔끔하게 묶어놓은 바구니야. 편하게 꺼내써! 라는 의도로 주로 사용함.
+// struct를 쓸 때 : 이건 복잡한 기능 없이 데이터만 깔끔하게 묶어놓은 바구니임. 편하게 꺼내써! 라는 의도로 주로 사용함.
 // class를 쓸 때 : 이건 데이터도 중요하지만, 그걸 다루는 복잡한 논리와 보안이 중요해. 정해진 함수로만 접근해! 라는 의도로 사용함.
 struct User
 {
@@ -118,15 +118,15 @@ public:
 
 			// [수정]
 			if (subChoice == 1) {
-				int indexNum; // 인덱스 번호
+				int inputNum; // 인덱스 번호
 
 				cout << "수정할 번호를 입력해주세요" << endl;
 				cout << "NUMBER : ";
-				cin >> indexNum; // 사용자가 수정하고 싶은 데이터를 입력함
+				cin >> inputNum; // 사용자가 수정하고 싶은 데이터를 입력함
 
-				int realIndex = indexNum - 1; // -1을 하는 이유는 인덱스는 0부터 시작하기 때문에 사용자가 1번으로 보이는 데이터의 실제 주소는 0이다.
+				int realIndex = inputNum - 1; // -1을 하는 이유는 인덱스는 0부터 시작하기 때문에 사용자가 1번으로 보이는 데이터의 실제 주소는 0이다.
 
-				if (indexNum >= 1 && indexNum <= foundIndices.size()) {
+				if (inputNum >= 1 && inputNum <= foundIndices.size()) {
 					int targetAddress = foundIndices[realIndex]; // 실제 주소를 담을 변수 
 					// foundIndices배열 안에 realIndex번째를 targetAddress로 선언한다. (즉, foundIndices의 n번째 칸을 열어서 그 안에 적힌 실제 주소를 읽어온다.)
 					cout << "선택한 번호의 이름 : " << list[targetAddress].name << endl;
@@ -145,14 +145,14 @@ public:
 
 			// [삭제]
 			if (subChoice == 2) {
-				int indexNum; // 인덱스 번호
+				int inputNum; // 인덱스 번호
 				cout << "삭제할 번호를 입력해주세요" << endl;
 				cout << "NUMBER : ";
-				cin >> indexNum;
+				cin >> inputNum;
 
-				int realIndex = indexNum - 1; // 실제 인덱스 주소
+				int realIndex = inputNum - 1; // 실제 인덱스 주소
 
-				if (indexNum >= 1 && indexNum <= foundIndices.size()) {
+				if (inputNum >= 1 && inputNum <= foundIndices.size()) {
 					int targetAddress = foundIndices[realIndex]; // 실제 주소를 담을 변수
 					// ------------------------------ 여기까진 수정과 같은 개념임. 사용자 보이는 번호(1부터)를 임시 변수에 담고 실제 주소로 찾아가기 위해 
 					// 새로운 변수를 선언하여 - 1 해줌.(인덱스는 0부터 시작하기 때문)
@@ -384,4 +384,5 @@ int main()
 	* 가나다 순으로 데이터 정렬
 	* 새로운 데이터 변수들을 추가 이후 프로그램의 전체적인 품질 상향
 	* 파일 저장 및 저장된 파일을 불러오기 하여 기존에 있던 데이터들을 프로그램 실행 시킬때 불러오기.
+	* 이름 또는 전화번호를 전체 입력을 하지 않아도 겹치는 부분이 있으면 출력하다가 일치하지 않아질때 점점 사라질 수 있게 구현하기.
 */
