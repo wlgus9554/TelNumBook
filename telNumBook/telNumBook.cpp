@@ -10,6 +10,8 @@ struct User {
 	string tel; // 사용자 전화번호
 };
 
+// -----------------------------------------------------------------------------------
+
 // 직접 구현한 벡터 기능들
 class MyVector {
 
@@ -23,6 +25,8 @@ public:
 	~MyVector() {
 		delete[] arr;
 	}
+
+	
 
 	// 배열의 맨 끝에 데이터를 추가하는 함수
 	void push_back(User value) {
@@ -45,9 +49,27 @@ public:
 
 	}
 
-	// 배열의 데이터 갯수
-	void size() {
-		cout << count << endl;
+	int size() { return count; }// 현재 데이터 갯수 반환
+	// 배열 인덱스 접근 함수
+	// list[i] 처럼 인덱스로 데이터 접근할 때 자동으로 호출되는 함수임.
+	User& operator[](int index) { return arr[index]; } // 내부 배열의 index 번째에 있는 User 데이터를 반환함.
+
+	// 데이터 지우기(데이터 시프트)
+	void erase(int index) {
+
+		// 예외처리
+		if (index < 0 || index >= count) {
+			return;
+		}
+
+		// 삭제할 위치부터 마지막 데이터 바로 전까지 반복
+		// 다음 칸의 데이터를 현재칸으로 덮어씀.
+		for (int i = index; i < count - 1; i++) {
+			arr[i] = arr[i + 1];
+		}
+
+		// 데이터 갯수 차감.
+		count--;
 	}
 
 private:
@@ -56,99 +78,171 @@ private:
 	int capacity = 2; // 배열의 (공간)크기
 };
 
+// -----------------------------------------------------------------------------------
+
+// 정수를 담을 수 있는 벡터(인덱스를 담기 위한 벡터임.)
+class IntVector
+{
+public:
+	// 생성자
+	IntVector() {
+		arr = new int[capacity];
+	}
+
+	// 소멸자
+	~IntVector() {
+		delete[] arr;
+	}
+
+	// 배열의 맨 끝에 데이터를 추가하는 함수
+	void push_back(int value) {
+
+		if (count == capacity) { // 만약 데이터가 배열의 크기와 같다면(용량이 꽉참을 의미함.)
+			int newCapacity = capacity + 2; // 배열의 크기가 꽉 차면 +2씩 늘리기 위한 인스턴스.
+			int* newArr = new int[newCapacity]; // 새로운 배열 선언.
+
+			for (int i = 0; i < capacity; i++) {
+				newArr[i] = arr[i]; // 새롭게 생성된 배열에 기존 배열의 데이터를 복사함.
+			}
+
+			delete[] arr; // 할당 해제
+			arr = newArr; // 주소를 다시 지정함.
+			capacity = newCapacity; // 배열의 크기 재설정.
+		}
+
+		arr[count] = value;
+		count++;
+
+	}
+
+	int size() { return count; } // 현재 데이터 갯수 반환
+	// 배열 인덱스 접근 함수
+	// list[i] 처럼 인덱스로 데이터 접근할 때 자동으로 호출되는 함수임.
+	int operator[](int index) { return arr[index]; } // 내부 배열의 index 번째에 있는 User 데이터를 반환함.
+
+	// 데이터 지우기(데이터 시프트)
+	void erase(int index) {
+		if (index < 0 || index >= count) {
+			return;
+		}
+
+		// 삭제할 위치부터 마지막 데이터 바로 전까지 반복
+		// 다음 칸의 데이터를 현재칸으로 덮어씀.
+		for (int i = index; i < count - 1; i++) {
+			arr[i] = arr[i + 1];
+		}
+
+		count--;
+	}
+
+private:
+	int* arr;
+	int count = 0;
+	int capacity = 2;
+};
+
+// -----------------------------------------------------------------------------------
+
 // 전화번호부 기능
 class TelNumBook {
+
 public:
 
 	// 사용자 데이터 추가 함수
 	void addContact(User newUser) {
 		list.push_back(newUser);
+		cout << list.size() << endl;
 	}
 
 	// 전체 사용자 조회
-	//void allUserList() {
-	//	if (list.size() == 0) {
-	//		cout << "데이터가 존재하지 않습니다." << endl;
-	//	}
+	void allUserList() {
+		if (list.size() == 0) {
+			cout << "데이터가 존재하지 않습니다." << endl;
+		}
 
-	//	for (int i = 0; i < list.size(); i++) {
-	//		cout << "| 이름 | " << list[i].name << " | 전화번호 | " << list[i].tel << endl;
-	//	}
-	//}
+		for (int i = 0; i < list.size(); i++) {
+			cout << "| 이름 | " << list[i].name << " | 전화번호 | " << list[i].tel << endl;
+		}
+	}
 
-	// 사용자 조회
-	//void userSearch(string searchData) {
+	 //사용자 조회
+	void userSearch(string searchData) {
 
-	//	bool isFound = false;
-	//	vector<int> foundIndices;
+		bool isFound = false;
+		IntVector foundIndices;
 
-	//	for (int i = 0; i < list.size(); i++) {
-	//		if (list[i].name == searchData || list[i].tel == searchData) {
-	//			foundIndices.push_back(i);
-	//			cout << "[" << foundIndices.size() << "]" << "| 이름 | " << list[i].name << " | 전화번호 | " << list[i].tel << endl;
-	//			isFound = true;
-	//		}
-	//	}
-	//	cout << endl;
+		for (int i = 0; i < list.size(); i++) {
+			if (list[i].name == searchData || list[i].tel == searchData) {
+				foundIndices.push_back(i);
+				cout << "[" << foundIndices.size() << "]" << "| 이름 | " << list[i].name << " | 전화번호 | " << list[i].tel << endl;
+				isFound = true;
+			}
+		}
+		cout << endl;
 
-	//	while (isFound == true) {
-	//		int subChoice;
+		while (isFound == true) {
+			int subChoice;
 
-	//		cout << "[1] 수정  [2] 삭제  [3] 이전으로" << endl;
-	//		cout << "입력 : ";
-	//		cin >> subChoice;
+			cout << "[1] 수정  [2] 삭제  [3] 이전으로" << endl;
+			cout << "입력 : ";
+			cin >> subChoice;
 
-	//		if (subChoice == 1) {
-	//			int inputNum;
+			if (subChoice == 1) {
+				int inputNum;
 
-	//			cout << "수정할 번호를 입력해주세요" << endl;
-	//			cout << "NUMBER : ";
-	//			cin >> inputNum;
+				cout << "수정할 번호를 입력해주세요" << endl;
+				cout << "NUMBER : ";
+				cin >> inputNum;
 
-	//			int realIndex = inputNum - 1;
+				int realIndex = inputNum - 1;
 
-	//			if (inputNum >= 1 && inputNum <= foundIndices.size()) {
-	//				int targetAddress = foundIndices[realIndex];
-	//				cout << "선택한 번호의 이름 : " << list[targetAddress].name << endl;
-	//				cout << "선택한 번호의 전화번호 : " << list[targetAddress].tel << endl;
+				if (inputNum >= 1 && inputNum <= foundIndices.size()) {
+					int targetAddress = foundIndices[realIndex];
+					cout << "선택한 번호의 이름 : " << list[targetAddress].name << endl;
+					cout << "선택한 번호의 전화번호 : " << list[targetAddress].tel << endl;
 
-	//				cout << "변경할 이름 : ";
-	//				cin >> list[targetAddress].name;
-	//				cout << "변경할 전화번호 : ";
-	//				cin >> list[targetAddress].tel;
+					cout << "변경할 이름 : ";
+					cin >> list[targetAddress].name;
+					cout << "변경할 전화번호 : ";
+					cin >> list[targetAddress].tel;
 
-	//				cout << "변경된 이름 : " << list[targetAddress].name << " | 변경된 전화번호 : " << list[targetAddress].tel << endl;
-	//				break;
-	//			}
-	//		}
+					cout << "변경된 이름 : " << list[targetAddress].name << " | 변경된 전화번호 : " << list[targetAddress].tel << endl;
+					break;
+				}
+			}
 
-	//		if (subChoice == 2) {
-	//			int inputNum;
-	//			cout << "삭제할 번호를 입력해주세요" << endl;
-	//			cout << "NUMBER : ";
-	//			cin >> inputNum;
+			if (subChoice == 2) {
+				int inputNum;
+				cout << "삭제할 번호를 입력해주세요" << endl;
+				cout << "NUMBER : ";
+				cin >> inputNum;
 
-	//			int realIndex = inputNum - 1;
+				int realIndex = inputNum - 1;
 
-	//			if (inputNum >= 1 && inputNum <= foundIndices.size()) {
-	//				int targetAddress = foundIndices[realIndex];
-	//				list.erase(list.begin() + targetAddress);
-	//				break;
-	//			}
-	//		}
+				if (inputNum >= 1 && inputNum <= foundIndices.size()) {
+					int targetAddress = foundIndices[realIndex];
+					list.erase(targetAddress);
 
-	//		if (subChoice == 3) break;
-	//	}
+					cout << "삭제가 완료됨." << endl;
+					break;
+				}
+			}
 
-	//	if (isFound == false) {
-	//		cout << "일치하는 데이터를 찾을 수 없습니다." << endl;
-	//	}
-	//}
+			if (subChoice == 3) break;
+		}
+
+		if (isFound == false) {
+			cout << "일치하는 데이터를 찾을 수 없습니다." << endl;
+		}
+	}
 
 private:
 	MyVector list;
 };
 
+// -----------------------------------------------------------------------------------
+
+// 메인 함수
 int main() {
 	TelNumBook list;
 	User user_struct;
@@ -175,18 +269,18 @@ int main() {
 			list.addContact(user_struct);
 		}
 
-		//if (menuChoice == 2) {
-		//	string searchData;
-		//	cout << "Search(Name or Tel) : ";
-		//	cin >> searchData;
-		//	cout << endl;
+		if (menuChoice == 2) {
+			string searchData;
+			cout << "Search(Name or Tel) : ";
+			cin >> searchData;
+			cout << endl;
 
-		//	list.userSearch(searchData);
-		//}
+			list.userSearch(searchData);
+		}
 
-		//if (menuChoice == 3) {
-		//	list.allUserList();
-		//}
+		if (menuChoice == 3) {
+			list.allUserList();
+		}
 
 		if (menuChoice == 4) break;
 	}
