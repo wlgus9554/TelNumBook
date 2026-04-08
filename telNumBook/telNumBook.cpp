@@ -1,388 +1,195 @@
- // 전화번호부 프로젝트
 #include <iostream>
-#include <vector> // vector를 사용하기 위한 헤더 
+#include <vector> 
+#include <string>
+
 using namespace std;
 
-// 복잡한 기능 없이 데이터만 깔끔하게 묶어놓은 바구니.
-// 개발자들 사이에선 
-// struct를 쓸 때 : 이건 복잡한 기능 없이 데이터만 깔끔하게 묶어놓은 바구니임. 편하게 꺼내써! 라는 의도로 주로 사용함.
-// class를 쓸 때 : 이건 데이터도 중요하지만, 그걸 다루는 복잡한 논리와 보안이 중요해. 정해진 함수로만 접근해! 라는 의도로 사용함.
-struct User
-{
-	// struct에서 생성한 변수는 기본적으로 public(공용)으로 생성된다.
-	// 하지만 struct도 private:으로 외부 접근을 막아서 은닉화 시킬 수 있다.
-
-	// private: 
-	// --> 주석한 이유 : struct를 모두가 접근 가능한 public 형태로 우선 생성한다.
-	// class를 User(struct로 생성한 데이터 모음 바구니)들을 관리하는 시스템으로 만든다.
-	// 	   private : User 객체들을 담아두는 배열이나, 벡터.(데이터가 꼬이지 않게 숨김.)
-	// 	   public: addContact(), searchContact() 같은 함수들.(사용자가 쓰는 버튼 역할)
- 
-	// string -> C++ 표준 라이브러리에서 제공하는 클래스임.
-	// 크기 : 글자 수에 맞춰 자동 조절
-	// 비교 : == 연산자 사용 가능
-	// 복사/대입 : = 연산자 사용 가능
-	// 유연성 : 제한 없이 늘어남
-
-	string name; // 이름
-	string tel; // 전화번호
+// 사용자의 데이터만 담는 구조체
+struct User {
+	string name; // 사용자 이름
+	string tel; // 사용자 전화번호
 };
 
-class TelNumBook
-{
+// 직접 구현한 벡터 기능들
+class MyVector {
+
 public:
-	// [3-1 등록 함수(사용자의 정보를 입력하는 함수)]
-	void addContact(User newUser) { // User 타입의 데이터를 newUser라는 이름으로 부름.
-		// list[count] = newUser; // list[0](count의 초깃값이 0임) = newUser에 있는 데이터를 통째로 복사해서 넣는다. 
-		// --> ★vector 사용으로 인해 주석처리한 코드★
+	// 생성자
+	MyVector() {
+		arr = new User[capacity];
+	}
 
-		list.push_back(newUser); // 빈 자리가 있다면 가장 끝에 데이터를 복사해서 넣음.
-		//   ㄴpush_back 이 하는 기능
-		// 공간 확인 : " 지금 공간에 새로운 데이터를 넣을 빈 자리가 있는가? "
-		// (★★★★★)데이터 안착 : "빈 자리가 있다면 가장 끝에 데이터를 복사해서 넣는다."
-		// 내부 카운트 업데이트 : "데이터가 하나 늘었으니 내 크기(size)를 1 늘려야지. (기존 count++ 의 역할을 대신함)
-		// 나중에 몇 명이 저장되어 있는지 궁금할때는
-		// list.size() 함수를 호출한다. -> 현재 저장중인 데이터 수를 출력할 수 있음.
-		
-		// count++; // count를 1증가 시킴 --> ★vector 사용으로 인해 주석처리한 코드★
-		// count를 1 증가 시키게 되면 다음 등록때는 list[1], 그 다음은 list[2] 이런식으로 데이터를 순차적으로 배열 안에 자동으로 복사해서 넣게 된다.
+	// 소멸자
+	~MyVector() {
+		delete[] arr;
+	}
 
-		// [데이터 등록이 성공적으로 됐는지 확인하기 위한 출력 코드]
-		cout << list.size() << endl; // size() 함수로 현재 저장된 데이터의 숫자를 출력함.
+	// 배열의 맨 끝에 데이터를 추가하는 함수
+	void push_back(User value) {
 
-		// cout << count << endl; // count 증가 확인용 코드 --> ★vector 사용으로 인해 주석처리한 코드★
+		if (count == capacity) { // 만약 데이터가 배열의 크기와 같다면(용량이 꽉참을 의미함.)
+			int newCapacity = capacity + 2; // 배열의 크기가 꽉 차면 +2씩 늘리기 위한 인스턴스.
+			User* newArr = new User[newCapacity]; // 새로운 배열 선언.
 
-	} // addContact() 의 끝
-
-	// [4-1] 전체 출력 함수
-	void allUserList() {
-
-		// 만약 데이터가 존재하지 않을 경우 경고문 출력.
-		if (list.size() == 0) {
-			cout << "데이터가 존재하지 않습니다." << endl;
-		}
-
-		for (int i = 0; i < list.size(); i++) {
-			cout << "| 이름 | " << list[i].name << " | 전화번호 | " << list[i].tel << endl;
-		}
-		// 해당 코드를 풀이하면 다음과 같음.
-		// i = 0; i < list.size() -> 0부터 list.size()까지(데이터가 존재하는 만큼);
-		// 출력한다. list[i] list의 i번째 배열에 담긴 name과 tel을 
-		// Ex) list[0].name, list[0].tel -> 도르니, 010-1234-1234가 담겨져 있음.
-
-	} // allUserList() 의 끝 
-
-	// [5-1] 검색 함수
-	void userSearch(string searchData) { // main 함수에서 받을 매개변수 세팅
-
-		bool isFound = false; // 시작은 아직 찾지 못한 상태이니 거짓으로 셋팅한다.
-
-		vector<int> foundIndices; // 동명인을 찾았을 때, 그 사람이 list의 몇 번째(숫자)에 있었는지 번호만 따로 적어두는 메모지임.
-		
-		// Ex) 만약 도르니가 3번과 7번에 있다면 foundIndices는 아래와 같다
-		// 3번째 : foundIndices.push_back(3); 실행 -> 결과 [3]
-		// 7번째 : foundIndices.push_back(7); 실행 -> 결과 [3, 7]
-
-		// 검색어를 main()에서 받고 함수에 전달한다.
-		// string 타입의 targetName의 인자에 값을 담고 해당 함수에서 사용한다.
-		
-		// 반복문을 사용하여 list.size() -> 전체 데이터 갯수만큼 돌린다
-		
-		// ----------------------------------------------------------------------------------------
-
-		for (int i = 0; i < list.size(); i++) { // list.size()는 현재 저장되어 있는 데이터만큼 돌게 해주는 안전장치 같은 존재
-
-			if (list[i].name == searchData || list[i].tel == searchData) {
-				foundIndices.push_back(i); // i가 foundIndices 바구니의 첫번째 칸에 들어간다. i는 방 번호 같은 개념임. 나중에 수정과 삭제를 위한 주소를 부여하는 주소값임.
-				// 쉽게 말해 foundIndices 변수는 실제 데이터가 존재하는 인덱스 번호가 들어있음.
-
-				// list[i] -> 배열의 0번째부터 전체 데이터(갯수 만큼) 중 검색어와 일치하는 데이터가 있다면 아래의 출력문으로 출력한다.
-
-				cout << "[" << foundIndices.size() << "]" << "| 이름 | " << list[i].name << " | 전화번호 | " << list[i].tel << endl;
-				// foundIndices.size()는 foundIndices 변수 안에 데이터 갯수를 의미함.
-				// 같은 데이터 3개일 경우 size()를 사용하게 되면 
-				// [1] 도르니 -> 반복!(같은 이름 존재) -> [2] 도르니 -> 반복!(같은 이름 존재) -> [3] 도르니 -> 반복! 
-				isFound = true; // 데이터를 출력한 이후 ifFound의 상태를 true로 바꿈.
-
-			} // if문의 끝
-
-		}// for문의 끝
-		cout << endl; // 줄내림
-
-		while (isFound == true) {
-			int subChoice; // 검색 안에서 메뉴를 입력한 것을 저장할 변수
-
-			cout << "[1] 수정  [2] 삭제  [3] 이전으로" << endl;
-			cout << "입력 : ";
-			cin >> subChoice;
-
-			// [수정]
-			if (subChoice == 1) {
-				int inputNum; // 인덱스 번호
-
-				cout << "수정할 번호를 입력해주세요" << endl;
-				cout << "NUMBER : ";
-				cin >> inputNum; // 사용자가 수정하고 싶은 데이터를 입력함
-
-				int realIndex = inputNum - 1; // -1을 하는 이유는 인덱스는 0부터 시작하기 때문에 사용자가 1번으로 보이는 데이터의 실제 주소는 0이다.
-
-				if (inputNum >= 1 && inputNum <= foundIndices.size()) {
-					int targetAddress = foundIndices[realIndex]; // 실제 주소를 담을 변수 
-					// foundIndices배열 안에 realIndex번째를 targetAddress로 선언한다. (즉, foundIndices의 n번째 칸을 열어서 그 안에 적힌 실제 주소를 읽어온다.)
-					cout << "선택한 번호의 이름 : " << list[targetAddress].name << endl;
-					cout << "선택한 번호의 전화번호 : " << list[targetAddress].tel << endl;
-
-					cout << "변경할 이름 : ";
-					cin >> list[targetAddress].name;
-					cout << "변경할 전화번호 : ";
-					cin >> list[targetAddress].tel;
-
-					cout << "변경된 이름 : " << list[targetAddress].name << " | 변경된 전화번호 : " << list[targetAddress].tel << endl;
-					break;
-				} // if문의 끝
-				
-			} // if문의 끝
-
-			// [삭제]
-			if (subChoice == 2) {
-				int inputNum; // 인덱스 번호
-				cout << "삭제할 번호를 입력해주세요" << endl;
-				cout << "NUMBER : ";
-				cin >> inputNum;
-
-				int realIndex = inputNum - 1; // 실제 인덱스 주소
-
-				if (inputNum >= 1 && inputNum <= foundIndices.size()) {
-					int targetAddress = foundIndices[realIndex]; // 실제 주소를 담을 변수
-					// ------------------------------ 여기까진 수정과 같은 개념임. 사용자 보이는 번호(1부터)를 임시 변수에 담고 실제 주소로 찾아가기 위해 
-					// 새로운 변수를 선언하여 - 1 해줌.(인덱스는 0부터 시작하기 때문)
-					// 1부터 존재하는 데이터 만큼 사이에서 선택해야 하기 때문에 조건문을 설정함.
-					list.erase(list.begin() + targetAddress); // begin부터 targetAddress만큼 떨어진 칸을 삭제해라.
-					// begin() : 맨 앞칸을 가리키는 포인터/반복자
-					// begin()을 사용하여 맨 첫 번째 칸은 여기다! 라고 찍어주는 기준점 같은 개념임.
-					// erase() 함수는 벡터라는 도화지에서 특정 부분을 지워버리는 함수임.
-					// erase()를 쓸 때는 "시작점 + 진짜 주소" 조합을 사용해야 함.
-					
-					break;
-				}
-				
+			for (int i = 0; i < capacity; i++) {
+				newArr[i] = arr[i]; // 새롭게 생성된 배열에 기존 배열의 데이터를 복사함.
 			}
 
-			// [이전으로]
-			if (subChoice == 3) break;
-			
+			delete[] arr; // 할당 해제
+			arr = newArr; // 주소를 다시 지정함.
+			capacity = newCapacity; // 배열의 크기 재설정.
 		}
 
-		// ----------------------------------------------------------------------------------------
-		
+		arr[count] = value;
+		count++;
 
-		// isFound가 false라면 일치하는 데이터가 존재하지 않았으므로 경고문을 출력한다.
-		if (isFound == false) {
-			cout << "일치하는 데이터를 찾을 수 없습니다." << endl;
-		} // if(isFound -> 데이터가 존재하지 않을 경우의 조건문) 끝
+	}
 
-		
-
-	} // search() 의 끝
+	// 배열의 데이터 갯수
+	void size() {
+		cout << count << endl;
+	}
 
 private:
-	//User list[100]; // User는 struct로 만든 데이터 바구니이다. 이를 list라는 이름으로 배열 형태의 [100] 크기, 0~99까지로 생성한다. --> ★vector 사용으로 인해 주석처리한 코드★
-
-	vector<User> list; // vector를 사용하여 정해진 배열의 크기가 아닌 동적으로 배열을 관리하게 설계함.
-
-	// 기존 배열 방식에서는 배열(list)이 그냥 공간일 뿐이라서, 현재 어디까지 찼는지 알려주는 손가락(count)이 필요했음. 하지만 vector는 공간 + 관리자 가 합쳐진 클래스임.
-	// - 배열 방식(기존 하려했던 방식) : 0번째 칸에 넣고, 이제 1번이라고 표시해둬(수동)
-	// -vector방식 : push_back해 -> vector 내부에서 "지금 0번까지 찼네? 그럼 1번에 넣고 내가 기억해둬야지."(자동)
-
-	// int count = 0; // 현재 저장된 인원수 체크용 --> ★vector 사용으로 인해 주석처리한 코드★
+	User* arr; // 배열 생성
+	int count = 0; // 데이터 갯수
+	int capacity = 2; // 배열의 (공간)크기
 };
 
-int main()
-{
-	TelNumBook list; // TelNumBook 클래스 인스턴스 생성
-	User user_struct; // User 스트럭트 인스턴스 생성
-	int menuChoice; // 사용자가 입력한 메뉴의 번호를 저장하는 인스턴스.
-	// int memberCount; // 회원수(데이터의 갯수를 알기 위해 등록된 회원의 수를 체크한다.)
+// 전화번호부 기능
+class TelNumBook {
+public:
+
+	// 사용자 데이터 추가 함수
+	void addContact(User newUser) {
+		list.push_back(newUser);
+	}
+
+	// 전체 사용자 조회
+	//void allUserList() {
+	//	if (list.size() == 0) {
+	//		cout << "데이터가 존재하지 않습니다." << endl;
+	//	}
+
+	//	for (int i = 0; i < list.size(); i++) {
+	//		cout << "| 이름 | " << list[i].name << " | 전화번호 | " << list[i].tel << endl;
+	//	}
+	//}
+
+	// 사용자 조회
+	//void userSearch(string searchData) {
+
+	//	bool isFound = false;
+	//	vector<int> foundIndices;
+
+	//	for (int i = 0; i < list.size(); i++) {
+	//		if (list[i].name == searchData || list[i].tel == searchData) {
+	//			foundIndices.push_back(i);
+	//			cout << "[" << foundIndices.size() << "]" << "| 이름 | " << list[i].name << " | 전화번호 | " << list[i].tel << endl;
+	//			isFound = true;
+	//		}
+	//	}
+	//	cout << endl;
+
+	//	while (isFound == true) {
+	//		int subChoice;
+
+	//		cout << "[1] 수정  [2] 삭제  [3] 이전으로" << endl;
+	//		cout << "입력 : ";
+	//		cin >> subChoice;
+
+	//		if (subChoice == 1) {
+	//			int inputNum;
+
+	//			cout << "수정할 번호를 입력해주세요" << endl;
+	//			cout << "NUMBER : ";
+	//			cin >> inputNum;
+
+	//			int realIndex = inputNum - 1;
+
+	//			if (inputNum >= 1 && inputNum <= foundIndices.size()) {
+	//				int targetAddress = foundIndices[realIndex];
+	//				cout << "선택한 번호의 이름 : " << list[targetAddress].name << endl;
+	//				cout << "선택한 번호의 전화번호 : " << list[targetAddress].tel << endl;
+
+	//				cout << "변경할 이름 : ";
+	//				cin >> list[targetAddress].name;
+	//				cout << "변경할 전화번호 : ";
+	//				cin >> list[targetAddress].tel;
+
+	//				cout << "변경된 이름 : " << list[targetAddress].name << " | 변경된 전화번호 : " << list[targetAddress].tel << endl;
+	//				break;
+	//			}
+	//		}
+
+	//		if (subChoice == 2) {
+	//			int inputNum;
+	//			cout << "삭제할 번호를 입력해주세요" << endl;
+	//			cout << "NUMBER : ";
+	//			cin >> inputNum;
+
+	//			int realIndex = inputNum - 1;
+
+	//			if (inputNum >= 1 && inputNum <= foundIndices.size()) {
+	//				int targetAddress = foundIndices[realIndex];
+	//				list.erase(list.begin() + targetAddress);
+	//				break;
+	//			}
+	//		}
+
+	//		if (subChoice == 3) break;
+	//	}
+
+	//	if (isFound == false) {
+	//		cout << "일치하는 데이터를 찾을 수 없습니다." << endl;
+	//	}
+	//}
+
+private:
+	MyVector list;
+};
+
+int main() {
+	TelNumBook list;
+	User user_struct;
+	int menuChoice;
 
 	while (true) {
-		// [1] 메인 화면
 		cout << "환영합니다. 이곳은 회원의 전화번호부를 관리하는 프로그램입니다." << endl;
 		cout << "메뉴를 확인 후 입력칸에 입력해주세요!" << endl;
 		cout << "  [1] 등록  [2] 조회  [3] 전체조회  [4] 프로그램 종료" << endl;
 		cout << "입력 : ";
-		cin >> menuChoice; // 사용자가 입력한 메뉴 번호를 저장한다.
+		cin >> menuChoice;
 		cout << endl;
 		cout << "[ ------------------------------------------------------ ]" << endl;
-		
-		// [3] 데이터 등록
+
 		if (menuChoice == 1) {
-			cout << "NAME : "; // 사용자가 이름을 입력함.
-			cin >> user_struct.name; // struct로 생성한 User에 존재하는 name 변수로 데이터를 저장함.
-			cout << "TEL : "; // 사용자가 전화번호를 입력함.
-			cin >> user_struct.tel; // struct로 생성한 User에 존재하는 tel 변수로 데이터를 저장함.
+			cout << "NAME : ";
+			cin >> user_struct.name;
+			cout << "TEL : ";
+			cin >> user_struct.tel;
 
-			// 데이터가 잘 저장되는지 확인하기 위한 코드
-			cout << user_struct.name << endl; // User에 저장된 데이터를 바로 출력함.
-			cout << user_struct.tel << endl; // User에 저장된 데이터를 바로 출력함.
+			cout << user_struct.name << endl;
+			cout << user_struct.tel << endl;
 
-			list.addContact(user_struct); // TelNumBook 클래스에 addContact 함수로 user_struct(User 스트럭트에 저장된 정보)를 건네준다.
+			list.addContact(user_struct);
 		}
 
-		// [5] 데이터 검색
-		if (menuChoice == 2) {
-			string searchData; // 검색할 이름 또는 전화번호를 담을 변수
-			cout << "Search(Name or Tel) : ";
-			cin >> searchData; // searchData 변수에 값을 저장
-			cout << endl; // 줄바꿈
+		//if (menuChoice == 2) {
+		//	string searchData;
+		//	cout << "Search(Name or Tel) : ";
+		//	cin >> searchData;
+		//	cout << endl;
 
-			list.userSearch(searchData); //userSearch 함수에 검색어를 건내줌.
-		}
+		//	list.userSearch(searchData);
+		//}
 
-		// [4] 전체 데이터 출력
-		if (menuChoice == 3) {
-			list.allUserList();
-		}
+		//if (menuChoice == 3) {
+		//	list.allUserList();
+		//}
 
-		// [2] 프로그램 종료
-		if (menuChoice == 4) break; // 반복문을 정지하여 프로그램을 종료시킴.
+		if (menuChoice == 4) break;
 	}
-	
 
 	return 0;
 }
-
-/*
-	2026/03/08
-	- 프로젝트 시작
-- 프로젝트의 설계를 하였음
-- 먼저 데이터를 다루는 부분, 그 데이터를 갖고 기능들을 실행할 함수들의 모음(class), 그 모음들을 main() 함수에서 호출하여 프로그램을 동작하게 하려고 구상을 하였음.
-
-좋았던 점
-- 데이터의 규격(struct User)과 데이터를 다루는 시스템(class telNumBook)을 나눈 것은 객체 지향 프로그래밍의 핵심을 찌른 설계임.
-- 확장성 : 나중에 주소나 이메일을 추가하고 싶을 때, 클래스를 건드릴 필요 없이 struct User 구조체만 수정하면 되기 때문에 유지보수가 아주 편한 구조임.
-
-보완할 점
-- 데이터의 개수 관리 : 클래스 내부의 배열 크기가 고정되어 있다면, 현재 몇 명의 사용자가 저장되었는지 알려주는 count 변수가 클래스 내부에 꼭 필요함.
-- 입력 방식 : 함수 내에서 입력을 받아서 저장하게 된다면 현재 구조에서는 list[0].name; 이런식으로 배열의 0번쨰 칸에 저장하게 된다.
-지금 방식으로 개발을 하면 당장의 문제는 없지만 나중에 파일에서 불러오기 기능을 만든다고 가정을 하였을때 "키보드로 입력 받는 함수"를 통째로 새로 짜야한다.
-또한 정보를 클래스에 넘겨주기 전에 main()이나 별도 공간에서 "전화번호 형식이 맞나?"를 미리 검사할 수 있다.
-유연한 위치 선정 : 지금 방식은 함수를 호출할 때마다 위치(list[0])에만 고정되어 저장되기 쉽지만, 데이터를 전달하는 방식은 클래스가 내부적으로 "지금 몇 명쨰지? 아, 5명이니까 6번 칸에 넣어야겠다." 라고 똑똑하게 판단할 수 있게 된다.
-
-제미나이(AI)를 사용하여 추천받은 방법
-- main()에서 User(struct로 만든 데이터 바구니) ㅇㅇㅇ; 를 만든다.
-- cin >> 을 이용해 ㅇㅇㅇ.name과 ㅇㅇㅇ.tel에 값을 채운다.
-- 클래스의 저장 함수를 호출하며(ㅇㅇㅇ)을 던져준다.(예시 : telNumBook.add(ㅇㅇㅇ); )
-- list[count] = ㅇㅇㅇ; 라고 복사한 뒤, count를 1 올린다.
-
-내일 이어서 해야할 부분
-- private: 부분에 int count = 0; 이라는 변수를 만든다.
-// 이 count로 list[0].name, list[1].name처럼 숫자를 직접 적을 필요가 없어짐. 항상 list[count] 라고 적으면 데이터가 들어올 때마다 count가 올라가면서 자동으로 다음 빈칸을 찾아가게 된다.
-
-*/
-
-/*
-2026/03/09
-- 여러 사용자가 입력한 데이터를 다루기 위해 배열을 사용해야 했고, 입력된 데이터의 갯수를 자동으로 관리하기 위해 동적 배열인 vector를 사용하였다.
-- vector란 "스스로 크기를 조절하는" (시퀀스 컨테이너)배열이다.
-	- 시퀀스 컨테이너란? 
-		- 요소들이 추가된 순서대로 메모리에 배치되거나 논리적인 순서를 가진다.
-		- vector나 deque 같은 경우 배열처럼 [] 연산자를 통해 특정 위치에 즉시 접근이 가능하다.
-		- 실행 중에 요소의 개수에 따라 크기를 늘리거나 줄일 수 있다.
-	- 동적 배열이란?
-		- 실행 시간에 그 크기를 자유롭게 조절할 수 있는 배열을 의미한다.
-		- 새로운 요소를 넣을 자리가 있는지 확인한다.
-		- 자리가 부족하면, 현재보다 약 1.5배~2배 큰 새로운 메모리 공간을 할당받는다.
-		- 기존 위치에 있던 데이터들을 새 위치로 하나하나 복사한다.
-	vector를 선호한 이유
-	- 데이터가 메모리에 나란히 붙어 있으면, CPU가 데이터를 읽어올 때 주변 데이터까지 한꺼번에 캐시 메모리로 가져온다. 이를 캐시 히트라고 하며, 흩어져 있는 데이터를 읽을 때보다 속도가 압도적으로 빠르다. 수천명의 유닛을 처리해야 하는 게임 환경에서 이 성능 차이는 결정적이다.
-
-	좋았던 점
-	- main() 코드가 간결하다.
-	- 기존 프로젝트에선 전체 데이터를 다루는 함수는 외부함수로 빠져야 했다.(당시 클래스는 1명의 유저를 다루는 설계도 였기 때문임.) 그러나 지금 프로젝트의 구조는 struct로 변수만 다루고 class로 함수만 다루기 때문에 현재 클래스 자체가 1명의 유저가 아닌 전체 또는 1명의 데이터를 다룰수 있으며, struct User는 데이터, telNumBook(클래스)은 User(struct)를 다루는 기술들이 각자의 역할에 집중할 수 있다.(응집도는 강하며 결합도는 약하다.)
-	- vector를 사용하여 main()은 건드릴 필요 없이 클래스 내부만 수정하면 되는 유지보수의 용이성을 갖고 있다.
-
-	아쉬운 점
-	- 데이터 하나를 출력하려고 해도 main -> class -> vector 순으로 접근해야 하므로 호출 단계가 한 층 더 생긴다.
-	- 현재 코드는 간단한 프로젝트에는 과한 설계이다
-		- 허나, 여러 기능들이 추가 된다면 현재 구조의 진가를 발휘할 수 있다.
-	
-*/
-
-/*
-	2026/03/11
-	전체 데이터를 출력하는 기능을 구현함.
-	struct User에는 등록한 데이터들이 담겨져 있음.
-	vector를 사용하여 동적 배열로 배열이 자동으로 관리됨.
-	push_back으로 배열의 마지막(0번째부터)에 데이터를 담음.
-	size()으로 배열에 존재하는 데이터의 수를 확인할 수 있었음.
-	size()를 사용하여 전체 데이터의 수만큼 User에 담긴 데이터를 전체 출력하는 기능을 구현함.
-
-	좋았던 점
-	- vector를 사용하여 배열이 자동으로 관리되는 부분이 매우 편리하였음.
-	- 전체 출력 역시 size()로 vector 자체의 기능을 쓰다보니 저장된 전체 데이터의 수를 이용해 전체 리스트 조회 모듈을 쉽게 출력할 수 있었음.
-
-	아쉬웠던 점
-	- 전체 데이터 내에서 검색 모듈을 구현하려 하였지만 설계와 코드가 현재 수준에서는 감당하지 못할거 같아서 설계하다가 포기함.
-	- 가나다 순으로 데이터를 출력하고 싶은 마음이지만 전체 구현이 끝난 이후에 해볼 예정.
-*/
-
-/*
-	2026/03/13
-	검색 모듈과 수정을 구현함
-	검색은 사용자가 검색할 데이터를 입력하면 입력한 데이터를 임시 저장할 변수에 넣고, 그 변수로 실제 배열에서 비교하며 일치하는 데이터가 존재할 경우 데이터를 출력하게 구현하였음.
-	처음엔 이름으로만 검색을 하게 하였고, 코드를 조금씩 수정하며 이름 또는 전화번호를 입력했을때 일치하는 데이터가 있을시 해당 데이터를 출력하게 하였음.
-	검색한 데이터에서 데이터가 여러개면 각각 데이터마다 인덱스 주소(번호)로 사용자가 선택하여 수정할 수 있게 하였음.
-	새로운 정수형 벡터로 변수(foundIndices)를 하나 생성하였음(이 변수는 임시로 저장할 배열의 변수임.)
-	임시 배열 변수(foundIndices)에 push_back으로 i번째에 있는 데이터를 복사하여 넣었고, 임시 배열은 사용자가 보는 [1] [2] [3] 과 같은 여러 데이터의 앞에 붙는 구분할 수 있는 번호로 보이게 됨.
-	인덱스는 0부터 시작하므로 임시 배열 변수(foundIndices) - 1을 하여 실제 인덱스 주소에 맞게 하였으며 realIndex라는 변수를 생성하여 해당 변수에 넣음.
-	realIndex를 targetAddress(실제 주소를 담을 변수) 안에 넣어 새로운 변수를 선언하였고, targetAddress를 이용하여 기존 데이터 위에 새로운 입력으로 데이터 덮어쓰기를 하였음.
-
-	좋았던 점
-	- push_back()과 size()를 다시 한번 활용하며 복습을 하는 시간을 갖게 되었음.
-	- 배열의 움직임을 좀 더 깊게 이해하게 되었음.
-	- 임시 변수를 생성하며 임시 변수를 어떤식으로 활용해야 하는지 대략 알게 되었음.
-	- vector가 내부적으로 데이터를 나란히 배치하여 CPU 캐시 효율을 높인다는 이론을 알게 됨.
-	- struct, class, main을 분리하여 유지보수가 쉬운 설계를 구축하여 코드를 작성하는 부분에서도 생각보다 복잡하진 않았음.
-	- 이중 인덱스를 사용하여 "임시 번호 -> 저장할 객체(foundIndices) -> 진짜주소(list)로 이어지는 연결고리를 설계해봤음.
-	- 사용자가 수정할 번호를 입력할때 0 또는 보이는 번호보다 높은 번호를 입력하게 되면 존재하지 않는 실제 인덱스의 번호를 입력하게 되는 것이라 이에 맞는 조건문을 설계함.(if (indicesNum >= 1 && indicesNum <= foundIndices.size()) {)
-	
-	아쉬웠던 점
-	- Assertion Failed 에러가 발생했었음 (서로 다른 바구니의 인덱스를 섞어서 사용했기 때문임.)
-	- 검색 부분에서 break 위치가 잘못되어 원하지 않는 부분에서 루프를 탈출함.
-	
-*/
-
-/*
-	2026/03/15
-	삭제 모듈을 구현함
-	해당 삭제 모듈은 수정과 큰 차이가 없었음
-	먼저 인덱스의 주소를 찾아야함.
-	수정에서도 마찬가지로 "몇 번 자리에 데이터를 수정할 것인가?"가 중요한 부분이였기에 삭제도 마찬가지로 "몇 번 자리에 데이터를 삭제할래?"가 중요시 되야함.
-	따라서 수정과 같은 코드로 검색에서 출력된 데이터에서 [1] [2]와 같은 번호들은 foundIndices 동적 배열 변수에 저장된 데이터 갯수를 의미함.
-	사용자에게 선택하기 편하게 보여주기 위해서 이러한 방법을 선택하였음.
-	오늘은 vector에 기능인 erase() 함수를 사용해봤음.
-	erase() 함수란 인덱스의 주소에 들어있던 데이터를 지우고 남은 데이터들의 주소를 다시 정렬함(앞으로 당겨지게 됨.)
-
-	begin() : 맨 앞칸을 가리키는 포인터/반복자
-	begin()을 사용하여 맨 첫 번째 칸은 여기다! 라고 찍어주는 기준점 같은 개념임.
-	erase() 함수는 벡터라는 도화지에서 특정 부분을 지워버리는 함수임.
-	erase()를 쓸 때는 "시작점 + 진짜 주소" 조합을 사용해야 함.
-
-	좋았던 점
-	- vector의 새로운 함수 erase()를 공부하게 되었으며, 배열을 보다 편하게 관리하는 방법을 공부하게 됨.
-	- 수정과 비슷한 코드였기 때문에 수정을 이미 구현한 이후라서 어렵지 않았음.
-
-	아쉬웠던 점
-	- 예외처리가 되어있지 않아서 어떠한 입력도 받아낼 수 있음
-	- break를 수정과 삭제 이후 걸지 않아서 가끔 반복문이 무한으로 루프되는 경우도 발생하였었음.(수정 완료)
-	- 라이브러리 함수의 사용법을 공식 문서나 가이드를 통해 확인하는 습관이 중요함.
-
-
-	기본적인 모듈 구현 완료
-	**** 앞으로 구현해볼 기능 ****
-	* 입력에 대한 예외처리
-	* 가나다 순으로 데이터 정렬
-	* 새로운 데이터 변수들을 추가 이후 프로그램의 전체적인 품질 상향
-	* 파일 저장 및 저장된 파일을 불러오기 하여 기존에 있던 데이터들을 프로그램 실행 시킬때 불러오기.
-	* 이름 또는 전화번호를 전체 입력을 하지 않아도 겹치는 부분이 있으면 출력하다가 일치하지 않아질때 점점 사라질 수 있게 구현하기.
-*/
